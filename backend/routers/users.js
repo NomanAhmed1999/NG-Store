@@ -72,6 +72,12 @@ router.post(`/login`, async (req, res) => {
 
 
 router.post(`/register`, async (req, res) => {
+    // Check if user already exists
+    const existingUser = await User.findOne({ email: req.body.email });
+    if (existingUser) {
+        return res.status(400).json({ message: 'User with this email already exists' });
+    }
+
     let user = new User({
         name: req.body.name,
         email: req.body.email,
@@ -84,11 +90,16 @@ router.post(`/register`, async (req, res) => {
         phone: req.body.phone,
         isAdmin: req.body.isAdmin,
     })
-    user = await user.save();
-    if (!user) {
-        return res.status(500).send('The user cannot be created');
+    
+    try {
+        user = await user.save();
+        if (!user) {
+            return res.status(500).json({ message: 'The user cannot be created' });
+        }
+        res.status(201).json(user);
+    } catch (error) {
+        return res.status(500).json({ message: 'Error creating user', error: error.message });
     }
-    res.send(user);
 });
 
 
