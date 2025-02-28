@@ -1,16 +1,49 @@
 const { Order } = require('../models/order');
 const express = require('express');
 const { OrderItem } = require('../models/order-item');
+const { User } = require('../models/user');
 const router = express.Router();
 
 
 router.get(`/`, async (req, res) => {
-    const orderList = await Order.find().populate('user', 'name').sort({ 'dateOrdered': -1 });
+    try {
+        let filter = {};
 
-    if (!orderList) {
-        res.status(500).json({ success: false });
+        // Filter by Order ID if provided
+        if (req.query.orderId) {
+            filter._id = req.query.orderId;
+        }
+
+        // Filter by Customer Name if provided
+        if (req.query.customerName) {
+            const userFilter = new RegExp(req.query.customerName, 'i');
+            const users = await User.find({ name: userFilter });
+            filter.user = { $in: users.map(user => user._id) };
+        }
+
+        // Filter by Total Price Range if provided
+        if (req.query.minPrice || req.query.maxPrice) {
+            filter.totalPrice = {};
+            if (req.query.minPrice) filter.totalPrice.$gte = parseFloat(req.query.minPrice);
+            if (req.query.maxPrice) filter.totalPrice.$lte = parseFloat(req.query.maxPrice);
+        }
+
+        // Filter by Status if provided
+        if (req.query.status) {
+            filter.status = req.query.status;
+        }
+
+        const orderList = await Order.find(filter)
+            .populate('user', 'name')
+            .sort({ 'dateOrdered': -1 });
+
+        if (!orderList) {
+            return res.status(500).json({ success: false });
+        }
+        res.send(orderList);
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
     }
-    res.send(orderList);
 });
 
 router.get(`/:id`, async (req, res) => {
