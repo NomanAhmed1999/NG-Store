@@ -67,29 +67,29 @@ function OrdersPage() {
   // Prepare data for charts
   const prepareChartData = () => {
     // Order Status Distribution
-    const statusCount = orders.reduce((acc, order) => {
-      acc[order.status] = (acc[order.status] || 0) + 1;
+    const statusCount = orders.reduce((acc: any, order) => {
+      acc[order.status] = (acc[order.status] || 0) + 1 as number;
       return acc;
     }, {});
     const statusData = Object.entries(statusCount).map(([name, value]) => ({ name, value }));
 
     // Sales Over Time
-    const salesByDate = orders.reduce((acc, order) => {
+    const salesByDate = orders.reduce((acc: any, order) => {
       const date = new Date(order.dateOrdered).toLocaleDateString();
-      acc[date] = (acc[date] || 0) + order.totalPrice;
+      acc = { ...acc, [date]: (acc[date] || 0) + order.totalPrice };
       return acc;
     }, {});
     const salesData = Object.entries(salesByDate).map(([date, amount]) => ({ date, amount }));
 
     // Orders by Customer
-    const customerOrders = orders.reduce((acc, order) => {
+    const customerOrders = orders.reduce((acc: any, order) => {
       acc[order.user.name] = (acc[order.user.name] || 0) + 1;
       return acc;
     }, {});
     const customerData = Object.entries(customerOrders).map(([name, count]) => ({ name, count }));
 
     // Orders by Location
-    const locationOrders = orders.reduce((acc, order) => {
+    const locationOrders = orders.reduce((acc: any, order) => {
       acc[order.country] = (acc[order.country] || 0) + 1;
       return acc;
     }, {});
