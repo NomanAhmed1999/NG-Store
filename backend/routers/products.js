@@ -167,33 +167,42 @@ router.get(`/get/featured/:count`, async (req, res) => {
 
 
 router.put('/gallery-images/:id',
-     uploadOptions.array('images', 10),
-     async (req, res) => {
+    uploadOptions.array('images', 10),
+    async (req, res) => {
     if (!mongoose.isValidObjectId(req.params.id)) {
         return res.status(400).send('Invalid Product Id')
     }
-    const files = req.files;
-    let imagesPaths = [];
-    const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`;
-
-    if (files) {
-        files.map(file => {
-            imagesPaths.push(`${basePath}${file.filename}`);
-        })
-    }
     
+    const files = req.files;
+    if (!files || files.length === 0) {
+        return res.status(400).send('No images uploaded');
+    }
 
-    const product = await Product.findByIdAndUpdate(
+    const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`;
+    
+    // Get existing product
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+        return res.status(404).send('Product not found');
+    }
+
+    // Add new images to existing ones
+    const newImagesPaths = files.map(file => `${basePath}${file.filename}`);
+    const existingImages = product.images || [];
+    
+    const updatedProduct = await Product.findByIdAndUpdate(
         req.params.id,
         {
-            images: imagesPaths,
+            images: [...existingImages, ...newImagesPaths],
         },
         { new: true }
     );
-    if (!product) {
-        res.status(500).json({ message: 'The product cannot be updated' });
+
+    if (!updatedProduct) {
+        return res.status(500).send('The product cannot be updated');
     }
-    res.status(200).send(product);
+    
+    res.status(200).send(updatedProduct);
 });
 
 

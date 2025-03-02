@@ -23,6 +23,8 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import dynamic from 'next/dynamic';
 import { useRef } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 import 'react-quill/dist/quill.snow.css';
@@ -48,13 +50,25 @@ interface Category {
   name: string;
 }
 
+interface FormData {
+  name: string;
+  description: string;
+  richDescription: string;
+  image?: string;
+  brand: string;
+  price: number;
+  category: string;
+  countInStock: number;
+  isFeatured: boolean;
+}
+
 function ProductPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     description: '',
     richDescription: '',
@@ -90,11 +104,11 @@ function ProductPage() {
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const value = e.target.type === 'number' ? parseFloat(e.target.value) : e.target.value;
-    setFormData({
-      ...formData,
-      [e.target.name]: value
-    });
+    const { name, value, type } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'number' ? parseFloat(value) : value
+    }));
   };
 
   const handleSelectChange = (value: string, field: string) => {
@@ -108,8 +122,8 @@ function ProductPage() {
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
-      Object.keys(formData).forEach(key => {
-        formDataToSend.append(key, formData[key]);
+      (Object.keys(formData) as Array<keyof typeof formData>).forEach(key => {
+        formDataToSend.append(key, formData[key].toString());
       });
       
       if (fileInputRef.current?.files?.[0]) {
@@ -146,11 +160,11 @@ function ProductPage() {
 
     try {
       const formDataToSend = new FormData();
-      Object.keys(formData).forEach(key => {
+      (Object.keys(formData) as Array<keyof typeof formData>).forEach(key => {
         if (key === 'category') {
           formDataToSend.append('category', formData[key]);
         } else {
-          formDataToSend.append(key, formData[key]);
+          formDataToSend.append(key, formData[key].toString());
         }
       });
       
@@ -204,14 +218,26 @@ function ProductPage() {
       name: product.name,
       description: product.description,
       richDescription: product.richDescription,
-      image: product.image,
       brand: product.brand,
       price: product.price,
-      category: product.category._id,
+      category: product.category?._id || '',
       countInStock: product.countInStock,
       isFeatured: product.isFeatured
     });
     setIsAddModalOpen(true);
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      description: '',
+      richDescription: '',
+      brand: '',
+      price: 0,
+      category: '',
+      countInStock: 0,
+      isFeatured: false
+    });
   };
 
   return (
@@ -225,17 +251,7 @@ function ProductPage() {
               <h1 className="text-2xl font-bold">Products</h1>
               <Button onClick={() => {
                 setSelectedProduct(null);
-                setFormData({
-                  name: '',
-                  description: '',
-                  richDescription: '',
-                  image: '',
-                  brand: '',
-                  price: 0,
-                  category: '',
-                  countInStock: 0,
-                  isFeatured: false
-                });
+                resetForm();
                 setIsAddModalOpen(true);
               }}>
                 <Plus className="mr-2 h-4 w-4" /> Add Product
@@ -256,7 +272,26 @@ function ProductPage() {
               <TableBody>
                 {products.map((product) => (
                   <TableRow key={product._id}>
-                    <TableCell>{product.name}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        {product.image && (
+                          <div className="h-12 w-12 relative rounded overflow-hidden">
+                            <Image 
+                              src={product.image}
+                              alt={product.name}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        )}
+                        <Link 
+                          href={`/admin/products/${product._id}`}
+                          className="font-bold hover:underline"
+                        >
+                          {product.name}
+                        </Link>
+                      </div>
+                    </TableCell>
                     <TableCell>{product.brand}</TableCell>
                     <TableCell>${product.price}</TableCell>
                     <TableCell>{product.category?.name || 'No Category'}</TableCell>
