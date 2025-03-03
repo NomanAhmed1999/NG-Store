@@ -205,6 +205,104 @@ router.put('/gallery-images/:id',
     res.status(200).send(updatedProduct);
 });
 
+router.delete('/gallery-image/:id', async (req, res) => {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).send('Invalid Product Id')
+    }
+    
+    const imageUrl = req.body.imageUrl;
+    if (!imageUrl) {
+        return res.status(400).send('Image URL is required');
+    }
 
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+        return res.status(404).send('Product not found');
+    }
+
+    // Filter out the image to be deleted
+    const updatedImages = product.images.filter(img => img !== imageUrl);
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+        req.params.id,
+        {
+            images: updatedImages,
+        },
+        { new: true }
+    );
+
+    if (!updatedProduct) {
+        return res.status(500).send('The product cannot be updated');
+    }
+    
+    res.status(200).send(updatedProduct);
+});
+
+router.put('/gallery-images-reorder/:id', async (req, res) => {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).send('Invalid Product Id')
+    }
+    
+    const { images } = req.body;
+    if (!images || !Array.isArray(images)) {
+        return res.status(400).send('Images array is required');
+    }
+
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+        return res.status(404).send('Product not found');
+    }
+
+    // Verify that all images in the new order exist in the current product
+    const isValidReorder = images.every(img => product.images.includes(img));
+    if (!isValidReorder) {
+        return res.status(400).send('Invalid image order');
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+        req.params.id,
+        { images },
+        { new: true }
+    );
+
+    if (!updatedProduct) {
+        return res.status(500).send('The product cannot be updated');
+    }
+    
+    res.status(200).send(updatedProduct);
+});
+
+router.delete('/gallery-images/:id', async (req, res) => {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).send('Invalid Product Id')
+    }
+    
+    const { imageUrls } = req.body;
+    if (!imageUrls || !Array.isArray(imageUrls) || imageUrls.length === 0) {
+        return res.status(400).send('Image URLs array is required');
+    }
+
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+        return res.status(404).send('Product not found');
+    }
+
+    // Filter out the images to be deleted
+    const updatedImages = product.images.filter(img => !imageUrls.includes(img));
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+        req.params.id,
+        {
+            images: updatedImages,
+        },
+        { new: true }
+    );
+
+    if (!updatedProduct) {
+        return res.status(500).send('The product cannot be updated');
+    }
+    
+    res.status(200).send(updatedProduct);
+});
 
 module.exports = router;

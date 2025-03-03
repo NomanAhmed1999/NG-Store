@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import axios from 'axios';
 import Image from 'next/image';
+import ImageViewerModal from '@/components/admin/ImageViewerModal';
+import DraggableGallery from '@/components/admin/DraggableGallery';
 
 interface Product {
   _id: string;
@@ -36,6 +38,7 @@ export default function ProductDetail() {
   const [product, setProduct] = useState<Product | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProduct();
@@ -84,6 +87,44 @@ export default function ProductDetail() {
     }
   };
 
+  const handleDeleteImage = async (imageUrl: string) => {
+    try {
+      await axios.delete(`http://localhost:3000/api/v1/products/gallery-image/${params.id}`, {
+        data: { imageUrl }
+      });
+      toast.success('Image deleted successfully');
+      fetchProduct();
+    } catch (error) {
+      toast.error('Failed to delete image');
+    }
+  };
+
+  const handleReorderImages = async (reorderedImages: string[]) => {
+    try {
+      await axios.put(
+        `http://localhost:3000/api/v1/products/gallery-images-reorder/${params.id}`,
+        { images: reorderedImages }
+      );
+      setProduct(prev => prev ? { ...prev, images: reorderedImages } : null);
+    } catch (error) {
+      toast.error('Failed to reorder images');
+      // Refresh the product to restore the original order
+      fetchProduct();
+    }
+  };
+
+  const handleDeleteMultipleImages = async (imageUrls: string[]) => {
+    try {
+      await axios.delete(`http://localhost:3000/api/v1/products/gallery-images/${params.id}`, {
+        data: { imageUrls }
+      });
+      toast.success('Images deleted successfully');
+      fetchProduct();
+    } catch (error) {
+      toast.error('Failed to delete images');
+    }
+  };
+
   if (!product) return null;
 
   return (
@@ -119,18 +160,23 @@ export default function ProductDetail() {
 
                   <div>
                     <h2 className="text-xl font-semibold mb-4">Gallery Images</h2>
-                    <div className="grid grid-cols-3 gap-4 mb-4">
-                      {product.images?.map((img, index) => (
-                        <div key={index} className="relative h-[100px] rounded-lg overflow-hidden">
-                          <Image
-                            src={img}
-                            alt={`Gallery ${index + 1}`}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      ))}
-                    </div>
+                    {product.images && product.images.length > 0 && (
+                      <DraggableGallery
+                        images={product.images}
+                        onImageClick={setSelectedImage}
+                        onReorder={handleReorderImages}
+                        onDeleteMultiple={handleDeleteMultipleImages}
+                      />
+                    )}
+
+                    {selectedImage && (
+                      <ImageViewerModal
+                        imageUrl={selectedImage}
+                        onClose={() => setSelectedImage(null)}
+                        onDelete={() => handleDeleteImage(selectedImage)}
+                        productName={product.name}
+                      />
+                    )}
 
                     <form onSubmit={handleImageUpload} className="space-y-4">
                       <Input
