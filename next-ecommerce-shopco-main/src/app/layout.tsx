@@ -6,7 +6,7 @@ import TopNavbar from "@/components/layout/Navbar/TopNavbar";
 import Footer from "@/components/layout/Footer";
 import HolyLoader from "holy-loader";
 import Providers from "./providers";
-import { Toaster } from 'sonner';
+import { Toaster } from 'react-hot-toast';
 
 export const metadata: Metadata = {
   title: "Shopco",
@@ -31,7 +31,7 @@ export default function RootLayout({
           {children}
         </Providers>
         {/* <Footer /> */}
-        <Toaster />
+        <Toaster position="top-right" />
       </body>
     </html>
   );

@@ -11,20 +11,20 @@ type ProductCardProps = {
 const ProductCard = ({ data }: ProductCardProps) => {
   return (
     <Link
-      href={`/shop/product/${data.id}/${data.title.split(" ").join("-")}`}
+      href={`/shop/product/${data.id}`}
       className="flex flex-col items-start aspect-auto"
     >
       <div className="bg-[#F0EEED] rounded-[13px] lg:rounded-[20px] w-full lg:max-w-[295px] aspect-square mb-2.5 xl:mb-4 overflow-hidden">
         <Image
-          src={data.srcUrl}
+          src={data.image}
           width={295}
           height={298}
           className="rounded-md w-full h-full object-contain hover:scale-110 transition-all duration-500"
-          alt={data.title}
+          alt={data.name}
           priority
         />
       </div>
-      <strong className="text-black xl:text-xl">{data.title}</strong>
+      <strong className="text-black text-left xl:text-xl">{data.name}</strong>
       <div className="flex items-end mb-1 xl:mb-2">
         <Rating
           initialValue={data.rating}
@@ -40,42 +40,45 @@ const ProductCard = ({ data }: ProductCardProps) => {
         </span>
       </div>
       <div className="flex items-center space-x-[5px] xl:space-x-2.5">
-        {data.discount.percentage > 0 ? (
+        <span className="font-bold text-black text-xl xl:text-2xl">
+        {data.price}
+        </span>
+        {/* {data.discount?.percentage > 0 ? (
           <span className="font-bold text-black text-xl xl:text-2xl">
             {`$${Math.round(
-              data.price - (data.price * data.discount.percentage) / 100
+              data.price - (data.price * data.discount?.percentage) / 100
             )}`}
           </span>
-        ) : data.discount.amount > 0 ? (
+        ) : data.discount?.amount > 0 ? (
           <span className="font-bold text-black text-xl xl:text-2xl">
-            {`$${data.price - data.discount.amount}`}
+            {`$${data.price - data.discount?.amount}`}
           </span>
         ) : (
           <span className="font-bold text-black text-xl xl:text-2xl">
             ${data.price}
           </span>
         )}
-        {data.discount.percentage > 0 && (
+        {data.discount?.percentage > 0 && (
           <span className="font-bold text-black/40 line-through text-xl xl:text-2xl">
             ${data.price}
           </span>
         )}
-        {data.discount.amount > 0 && (
+        {data.discount?.amount > 0 && (
           <span className="font-bold text-black/40 line-through text-xl xl:text-2xl">
             ${data.price}
           </span>
         )}
-        {data.discount.percentage > 0 ? (
+        {data.discount?.percentage > 0 ? (
           <span className="font-medium text-[10px] xl:text-xs py-1.5 px-3.5 rounded-full bg-[#FF3333]/10 text-[#FF3333]">
-            {`-${data.discount.percentage}%`}
+            {`-${data.discount?.percentage}%`}
           </span>
         ) : (
-          data.discount.amount > 0 && (
+          data.discount?.amount > 0 && (
             <span className="font-medium text-[10px] xl:text-xs py-1.5 px-3.5 rounded-full bg-[#FF3333]/10 text-[#FF3333]">
-              {`-$${data.discount.amount}`}
+              {`-$${data.discount?.amount}`}
             </span>
           )
-        )}
+        )} */}
       </div>
     </Link>
   );

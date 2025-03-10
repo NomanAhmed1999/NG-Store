@@ -5,10 +5,12 @@ export type Discount = {
 
 export type Product = {
   id: number;
-  title: string;
-  srcUrl: string;
-  gallery?: string[];
+  name: string;
+  image: string;
+  images: string[];
   price: number;
   discount: Discount;
   rating: number;
+  category: any;
+  description: string;
 };

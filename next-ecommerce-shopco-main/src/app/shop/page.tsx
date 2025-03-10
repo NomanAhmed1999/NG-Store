@@ -10,7 +10,6 @@ import {
 import MobileFilters from "@/components/shop-page/filters/MobileFilters";
 import Filters from "@/components/shop-page/filters";
 import { FiSliders } from "react-icons/fi";
-import { newArrivalsData, relatedProductData, topSellingData } from "../page";
 import ProductCard from "@/components/common/ProductCard";
 import {
   Pagination,
@@ -23,8 +22,17 @@ import {
 } from "@/components/ui/pagination";
 import Footer from "@/components/layout/Footer";
 import TopNavbar from "@/components/layout/Navbar/TopNavbar";
+import { Product } from "@/types/product.types";
 
-export default function ShopPage() {
+async function getProducts() {
+  const res = await fetch('http://localhost:3000/api/v1/products/');
+  if (!res.ok) throw new Error('Failed to fetch products');
+  return res.json();
+}
+
+export default async function ShopPage() {
+  const products = await getProducts();
+
   return (
     <>
       <TopNavbar />
@@ -66,11 +74,7 @@ export default function ShopPage() {
                 </div>
               </div>
               <div className="w-full grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
-                {[
-                  ...relatedProductData.slice(1, 4),
-                  ...newArrivalsData.slice(1, 4),
-                  ...topSellingData.slice(1, 4),
-                ].map((product) => (
+                {products.map((product: Product) => (
                   <ProductCard key={product.id} data={product} />
                 ))}
               </div>

@@ -324,7 +324,7 @@ function ProductPage() {
 
             {/* Add/Edit Modal */}
             <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-              <DialogContent className="max-w-3xl">
+              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
                     {selectedProduct ? 'Edit Product' : 'Add Product'}

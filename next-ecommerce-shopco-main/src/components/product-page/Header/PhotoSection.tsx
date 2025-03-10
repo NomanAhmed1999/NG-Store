@@ -5,13 +5,13 @@ import Image from "next/image";
 import React, { useState } from "react";
 
 const PhotoSection = ({ data }: { data: Product }) => {
-  const [selected, setSelected] = useState<string>(data.srcUrl);
+  const [selected, setSelected] = useState<string>(data.image);
 
   return (
     <div className="flex flex-col-reverse lg:flex-row lg:space-x-3.5">
-      {data?.gallery && data.gallery.length > 0 && (
+      {data?.images && data.images.length > 0 && (
         <div className="flex lg:flex-col space-x-3 lg:space-x-0 lg:space-y-3.5 w-full lg:w-fit items-center lg:justify-start justify-center">
-          {data.gallery.map((photo, index) => (
+          {data.images.map((photo, index) => (
             <button
               key={index}
               type="button"
@@ -23,7 +23,7 @@ const PhotoSection = ({ data }: { data: Product }) => {
                 width={152}
                 height={167}
                 className="rounded-md w-full h-full object-cover hover:scale-110 transition-all duration-500"
-                alt={data.title}
+                alt={data.name}
                 priority
               />
             </button>
@@ -37,7 +37,7 @@ const PhotoSection = ({ data }: { data: Product }) => {
           width={444}
           height={530}
           className="rounded-md w-full h-full object-cover hover:scale-110 transition-all duration-500"
-          alt={data.title}
+          alt={data.name}
           priority
           unoptimized
         />
