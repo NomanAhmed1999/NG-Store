@@ -68,19 +68,19 @@ export default function Home() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        console.log("Fetching products from:", BASE_URL);
         const response = await fetch(`${BASE_URL}/products`);
         if (!response.ok) {
           throw new Error('Failed to fetch products');
         }
-        const products = await response.json();
+        const data = await response.json();
+        console.log("Fetching products from:", data);
         
         setNewArrivalsData(
-          products.filter((product: Product) => product.category?.name === 'new-arrivals')
+          data?.products?.filter((product: Product) => product.category?.name === 'new-arrivals')
         );
         
         setTopSellingData(
-          products.filter((product: Product) => product.category?.name === 'top-selling')
+          data?.products?.filter((product: Product) => product.category?.name === 'top-selling')
         );
       } catch (error) {
         toast.error('Error fetching products');

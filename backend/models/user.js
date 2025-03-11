@@ -1,4 +1,3 @@
-
 const mongoose = require('mongoose');
 
 const userSchema = mongoose.Schema({
@@ -41,10 +40,12 @@ const userSchema = mongoose.Schema({
     isAdmin: {
         type: Boolean,
         required: true
+    },
+    isActive: {
+        type: Boolean,
+        default: true
     }
 });
-
-
 
 userSchema.virtual('id').get(function () {
     return this._id.toHexString();
@@ -53,7 +54,6 @@ userSchema.virtual('id').get(function () {
 userSchema.set('toJSON', {
     virtuals: true
 })
-
 
 exports.User = mongoose.model('User', userSchema);
 exports.userSchema = userSchema;

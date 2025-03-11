@@ -40,7 +40,7 @@ const Header = ({ data }: { data: Product }) => {
           </div>
           <div className="flex items-center space-x-2.5 sm:space-x-3 mb-5">
             <span className="font-bold text-black text-2xl sm:text-[32px]">
-              {data.price}
+              Rs. {data.price}
             </span>
             {/* {data.discount.percentage > 0 ? (
               <span className="font-bold text-black text-2xl sm:text-[32px]">
@@ -88,7 +88,7 @@ const Header = ({ data }: { data: Product }) => {
           <hr className="h-[1px] border-t-black/10 my-5" />
           <SizeSelection />
           <hr className="hidden md:block h-[1px] border-t-black/10 my-5" />
-          <AddToCardSection data={data} />
+          <AddToCardSection product={data} />
         </div>
       </div>
     </>

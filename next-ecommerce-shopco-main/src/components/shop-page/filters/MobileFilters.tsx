@@ -12,7 +12,26 @@ import {
 import { FiSliders } from "react-icons/fi";
 import Filters from ".";
 
-const MobileFilters = () => {
+interface FilterState {
+  categories: string[];
+  priceRange: { min: number; max: number };
+  brands: string[];
+  sort: string;
+  search: string;
+  page: number;
+}
+
+interface MobileFiltersProps {
+  filters: FilterState;
+  onFilterChange: (newFilters: Partial<FilterState>) => void;
+  onClearFilters: () => void;
+}
+
+const MobileFilters: React.FC<MobileFiltersProps> = ({ 
+  filters, 
+  onFilterChange,
+  onClearFilters 
+}) => {
   return (
     <>
       <Drawer>
@@ -34,7 +53,11 @@ const MobileFilters = () => {
             <DrawerDescription className="hidden">filters</DrawerDescription>
           </DrawerHeader>
           <div className="max-h-[90%] overflow-y-auto w-full px-5 md:px-6 py-5 space-y-5 md:space-y-6">
-            <Filters />
+            <Filters 
+              filters={filters}
+              onFilterChange={onFilterChange}
+              onClearFilters={onClearFilters}
+            />
           </div>
         </DrawerContent>
       </Drawer>

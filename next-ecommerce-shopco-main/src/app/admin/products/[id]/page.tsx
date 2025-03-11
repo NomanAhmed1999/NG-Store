@@ -12,7 +12,7 @@ import axios from 'axios';
 import Image from 'next/image';
 import ImageViewerModal from '@/components/admin/ImageViewerModal';
 import DraggableGallery from '@/components/admin/DraggableGallery';
-
+import Footer from '@/components/layout/Footer';
 interface Product {
   _id: string;
   name: string;
@@ -134,7 +134,7 @@ export default function ProductDetail() {
         <main className="flex-1 w-full">
           <TopNavbar isAdmin={true} />
           <div className='pt-24 p-4 w-full'>
-            <div className="max-w-4xl mx-auto">
+            <div className="">
               <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">{product.name}</h1>
                 <Button onClick={() => router.push('/admin/products')}>
@@ -158,7 +158,7 @@ export default function ProductDetail() {
                     )}
                   </div>
 
-                  <div>
+                  <div className='bg-white p-4 rounded-lg shadow-md border border-gray-200'>
                     <h2 className="text-xl font-semibold mb-4">Gallery Images</h2>
                     {product.images && product.images.length > 0 && (
                       <DraggableGallery
@@ -196,7 +196,7 @@ export default function ProductDetail() {
                   </div>
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-6 bg-white p-4 rounded-lg shadow-md border border-gray-200">
                   <div>
                     <h3 className="font-semibold">Brand</h3>
                     <p>{product.brand}</p>
@@ -229,6 +229,7 @@ export default function ProductDetail() {
               </div>
             </div>
           </div>
+          <Footer/>
         </main>
       </div>
     </SidebarProvider>

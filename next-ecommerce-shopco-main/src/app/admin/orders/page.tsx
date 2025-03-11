@@ -21,7 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from 'sonner';
 import axios from 'axios';
 import { PieChart, Pie, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, BarChart, Bar, Cell, ResponsiveContainer } from 'recharts';
-
+import Footer from '@/components/layout/Footer';
 interface OrderItem {
   quantity: number;
   product: {
@@ -197,7 +197,7 @@ function OrdersPage() {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
-                    <PieChart<any> width={400} height={300}>
+                    <PieChart width={400} height={300}>
                       <Pie
                         data={statusData}
                         dataKey="value"
@@ -226,7 +226,7 @@ function OrdersPage() {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
-                    <LineChart<any> data={salesData}>
+                    <LineChart data={salesData}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="date" />
                       <YAxis />
@@ -245,7 +245,7 @@ function OrdersPage() {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
-                    <BarChart<any> data={customerData}>
+                    <BarChart data={customerData}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
                       <YAxis />
@@ -264,7 +264,7 @@ function OrdersPage() {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
-                    <BarChart<any> data={locationData}>
+                    <BarChart data={locationData}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="country" />
                       <YAxis />
@@ -472,10 +472,10 @@ function OrdersPage() {
                         <TableBody>
                           {orderDetails.orderItems.map((item, index) => (
                             <TableRow key={index}>
-                              <TableCell>{item.product.name}</TableCell>
+                              <TableCell>{item.product?.name}</TableCell>
                               <TableCell>{item.quantity}</TableCell>
-                              <TableCell>${item.product.price}</TableCell>
-                              <TableCell>${item.quantity * item.product.price}</TableCell>
+                              <TableCell>${item.product?.price}</TableCell>
+                              <TableCell>${item.quantity * item.product?.price}</TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
@@ -486,6 +486,7 @@ function OrdersPage() {
               </DialogContent>
             </Dialog>
           </div>
+          <Footer/>
         </main>
       </div>
     </SidebarProvider>

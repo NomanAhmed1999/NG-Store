@@ -1,17 +1,40 @@
 "use client";
 
-import CartCounter from "@/components/ui/CartCounter";
-import React, { useState } from "react";
-import AddToCartBtn from "./AddToCartBtn";
+import { Button } from "@/components/ui/button";
+import { useCartStore } from "@/lib/store/useCartStore";
 import { Product } from "@/types/product.types";
+import { useState } from "react";
+import { toast } from "react-hot-toast";
+import CartCounter from "../../ui/CartCounter";
 
-const AddToCardSection = ({ data }: { data: Product }) => {
-  const [quantity, setQuantity] = useState<number>(1);
+interface AddToCardSectionProps {
+  product: Product;
+}
+
+const AddToCardSection: React.FC<AddToCardSectionProps> = ({ product }) => {
+  const [quantity, setQuantity] = useState(1);
+  const addToCart = useCartStore((state) => state.addToCart);
+
+  const handleAddToCart = () => {
+    addToCart(product, quantity);
+    toast.success("Product added to cart!");
+  };
 
   return (
-    <div className="fixed md:relative w-full bg-white border-t md:border-none border-black/5 bottom-0 left-0 p-4 md:p-0 z-10 flex items-center justify-between sm:justify-start md:justify-center">
-      <CartCounter onAdd={setQuantity} onRemove={setQuantity} />
-      <AddToCartBtn data={{ ...data, quantity }} />
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center gap-8">
+        <CartCounter
+          initialValue={quantity}
+          onAdd={setQuantity}
+          onRemove={setQuantity}
+        />
+        <Button
+          onClick={handleAddToCart}
+          className="bg-black text-white rounded-full px-12 py-4 h-12"
+        >
+          Add to Cart
+        </Button>
+      </div>
     </div>
   );
 };

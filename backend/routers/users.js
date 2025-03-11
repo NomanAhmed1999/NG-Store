@@ -6,12 +6,32 @@ const jwt = require('jsonwebtoken');
 
 
 router.get(`/`, async (req, res) => {
-    const userList = await User.find().select('-passwordHash');
+    try {
+        let filter = {};
+        
+        // Status filter
+        if (req.query.status === 'active') {
+            filter.isActive = true;
+        } else if (req.query.status === 'inactive') {
+            filter.isActive = false;
+        }
 
-    if(!userList) {
-        res.status(500).json({success: false});
+        // Search by name or email
+        if (req.query.search) {
+            filter.$or = [
+                { name: { $regex: req.query.search, $options: 'i' } },
+                { email: { $regex: req.query.search, $options: 'i' } }
+            ];
+        }
+
+        const userList = await User.find(filter)
+            .select('-passwordHash')
+            .sort({ createdAt: -1 });
+
+        res.json(userList);
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
     }
-    res.send(userList);
 });
 
 
@@ -122,6 +142,27 @@ router.get(`/get/count`, async (req, res) => {
         res.send({ userCount });
     } catch (err) {
         res.status(500).json({ success: false, error: err });
+    }
+});
+
+// Add this new route for updating user status
+router.patch('/:id/status', async (req, res) => {
+    try {
+        const user = await User.findByIdAndUpdate(
+            req.params.id,
+            {
+                isActive: req.body.isActive
+            },
+            { new: true }
+        ).select('-passwordHash');
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 

@@ -35,7 +35,7 @@ export default function ProductPage({
         const relatedResponse = await fetch(`${BASE_URL}/products?category=${data.category._id}`);
         if (relatedResponse.ok) {
           const relatedData = await relatedResponse.json();
-          setRelatedProducts(relatedData.filter((p: Product) => p.id !== data.id));
+          setRelatedProducts(relatedData.products.filter((p: Product) => p.id !== data.id));
         }
       } catch (error) {
         toast.error('Error fetching product details');

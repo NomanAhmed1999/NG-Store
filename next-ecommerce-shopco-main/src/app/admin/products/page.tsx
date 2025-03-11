@@ -25,7 +25,7 @@ import dynamic from 'next/dynamic';
 import { useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-
+import Footer from '@/components/layout/Footer';
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 import 'react-quill/dist/quill.snow.css';
 
@@ -83,7 +83,7 @@ function ProductPage() {
   const fetchProducts = async () => {
     try {
       const response = await axios.get('http://localhost:3000/api/v1/products');
-      setProducts(response.data);
+      setProducts(response.data?.products);
     } catch (error) {
       toast.error('Failed to fetch products');
     }
@@ -123,7 +123,9 @@ function ProductPage() {
     try {
       const formDataToSend = new FormData();
       (Object.keys(formData) as Array<keyof typeof formData>).forEach(key => {
-        formDataToSend.append(key, formData[key].toString());
+        if (formData[key] !== undefined) {
+          formDataToSend.append(key, formData[key].toString());
+        }
       });
       
       if (fileInputRef.current?.files?.[0]) {
@@ -163,7 +165,7 @@ function ProductPage() {
       (Object.keys(formData) as Array<keyof typeof formData>).forEach(key => {
         if (key === 'category') {
           formDataToSend.append('category', formData[key]);
-        } else {
+        } else if (formData[key] !== undefined) {
           formDataToSend.append(key, formData[key].toString());
         }
       });
@@ -455,6 +457,7 @@ function ProductPage() {
               </DialogContent>
             </Dialog>
           </div>
+          <Footer/>
         </main>
       </div>
     </SidebarProvider>

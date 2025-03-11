@@ -32,16 +32,79 @@ const storage = multer.diskStorage({
 const uploadOptions = multer({ storage: storage })
 
 router.get(`/`, async (req, res) => {
-    let filter = {};
-    if (req.query.categories) {
-        filter = { category: req.query.categories.split(',') }
-    }
-    const productList = await Product.find(filter).populate('category');
+    try {
+        let filter = {};
+        let sort = {};
 
-    if (!productList) {
-        res.status(500).json({ success: false });
+        // Category filter
+        if (req.query.categories) {
+            filter.category = { $in: req.query.categories.split(',') };
+        }
+
+        // Price range filter
+        if (req.query.minPrice || req.query.maxPrice) {
+            filter.price = {};
+            if (req.query.minPrice) filter.price.$gte = Number(req.query.minPrice);
+            if (req.query.maxPrice) filter.price.$lte = Number(req.query.maxPrice);
+        }
+
+        // Search by name
+        if (req.query.search) {
+            filter.name = { $regex: req.query.search, $options: 'i' };
+        }
+
+        // Brand filter
+        if (req.query.brands) {
+            filter.brand = { $in: req.query.brands.split(',') };
+        }
+
+        // Rating filter
+        if (req.query.rating) {
+            filter.rating = { $gte: Number(req.query.rating) };
+        }
+
+        // Sorting
+        if (req.query.sort) {
+            switch (req.query.sort) {
+                case 'price_asc':
+                    sort.price = 1;
+                    break;
+                case 'price_desc':
+                    sort.price = -1;
+                    break;
+                case 'rating_desc':
+                    sort.rating = -1;
+                    break;
+                case 'newest':
+                    sort.dateCreated = -1;
+                    break;
+            }
+        }
+
+        // Get total count for pagination
+        const total = await Product.countDocuments(filter);
+
+        // Pagination
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 12;
+        const skip = (page - 1) * limit;
+
+        const productList = await Product.find(filter)
+            .populate('category')
+            .sort(sort)
+            .skip(skip)
+            .limit(limit);
+
+        res.json({
+            products: productList,
+            total,
+            page,
+            pages: Math.ceil(total / limit)
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
     }
-    res.send(productList);
 });
 
 router.get(`/:id`, async (req, res) => {
