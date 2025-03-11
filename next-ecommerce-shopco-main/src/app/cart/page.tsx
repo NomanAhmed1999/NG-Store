@@ -7,20 +7,21 @@ import { Button } from "@/components/ui/button";
 import CartCounter from "@/components/ui/CartCounter";
 import TopNavbar from "@/components/layout/Navbar/TopNavbar";
 import Footer from "@/components/layout/Footer";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/common/app-sidebar";
+import { useState } from "react";
+import { CheckoutModal } from "@/components/modals/CheckoutModal";
 
 export default function CartPage() {
-  const { items, totalQuantities, removeFromCart, updateQuantity } = useCartStore();
+  const { items, totalItems, removeFromCart, updateQuantity } = useCartStore();
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
 
   const totalPrice = items.reduce((total, item) => {
     return total + (item.price * item.quantity);
   }, 0);
 
+  console.log(items);
+
   if (items.length === 0) {
     return (
-      <SidebarProvider>
-        <AppSidebar />
         <main>
           <TopNavbar />
           <div className="container mx-auto px-4 py-8">
@@ -35,7 +36,6 @@ export default function CartPage() {
           </div>
           <Footer />
         </main>
-      </SidebarProvider>
     );
   }
 
@@ -43,7 +43,9 @@ export default function CartPage() {
       <main>
         <TopNavbar />
         <div className="container mx-auto px-4 py-8">
-          <h1 className="text-2xl font-semibold mb-8">Shopping Cart ({totalQuantities} items)</h1>
+          <h1 className="text-2xl font-semibold mb-8">
+            Shopping Cart ({totalItems} {totalItems === 1 ? 'item' : 'items'})
+          </h1>
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
@@ -106,7 +108,10 @@ export default function CartPage() {
                   </div>
                 </div>
                 
-                <Button className="w-full bg-black text-white rounded-full mt-6">
+                <Button 
+                  className="w-full bg-black text-white rounded-full mt-6"
+                  onClick={() => setIsCheckoutModalOpen(true)}
+                >
                   Proceed to Checkout
                 </Button>
               </div>
@@ -114,6 +119,11 @@ export default function CartPage() {
           </div>
         </div>
         <Footer />
+
+        <CheckoutModal 
+          isOpen={isCheckoutModalOpen}
+          onClose={() => setIsCheckoutModalOpen(false)}
+        />
       </main>
   );
 }

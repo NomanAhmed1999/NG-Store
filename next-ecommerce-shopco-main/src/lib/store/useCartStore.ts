@@ -9,6 +9,7 @@ interface CartItem extends Product {
 interface CartStore {
   items: CartItem[];
   totalQuantities: number;
+  totalItems: number;
   addToCart: (product: Product, quantity: number) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
@@ -20,6 +21,7 @@ export const useCartStore = create(
     (set: any) => ({
       items: [],
       totalQuantities: 0,
+      totalItems: 0,
       addToCart: (product: Product, quantity: number) => 
         set((state: any) => {
           const existingItem = state.items.find((item: any) => item._id === product.id);
@@ -32,13 +34,15 @@ export const useCartStore = create(
             );
             return {
               items: updatedItems,
-              totalQuantities: state.totalQuantities + quantity
+              totalQuantities: state.totalQuantities + quantity,
+              totalItems: state.totalItems
             };
           }
           
           return {
             items: [...state.items, { ...product, quantity }],
-            totalQuantities: state.totalQuantities + quantity
+            totalQuantities: state.totalQuantities + quantity,
+            totalItems: state.totalItems + 1
           };
         }),
       removeFromCart: (productId: string) =>
@@ -46,7 +50,8 @@ export const useCartStore = create(
           const itemToRemove = state.items.find((item: any) => item._id === productId);
           return {
             items: state.items.filter((item: any) => item._id !== productId),
-            totalQuantities: state.totalQuantities - (itemToRemove?.quantity || 0)
+            totalQuantities: state.totalQuantities - (itemToRemove?.quantity || 0),
+            totalItems: state.totalItems - 1
           };
         }),
       updateQuantity: (productId: string, quantity: number) =>
@@ -62,10 +67,11 @@ export const useCartStore = create(
           );
           return {
             items: updatedItems,
-            totalQuantities: newTotalQuantities
+            totalQuantities: newTotalQuantities,
+            totalItems: state.totalItems
           };
         }),
-      clearCart: () => set({ items: [], totalQuantities: 0 }),
+      clearCart: () => set({ items: [], totalQuantities: 0, totalItems: 0 }),
     }),
     {
       name: 'cart-storage',
