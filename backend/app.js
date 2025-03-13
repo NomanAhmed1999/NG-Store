@@ -26,6 +26,7 @@ const categoryRouter = require('./routers/categories');
 const userRouter = require('./routers/users');
 const orderRouter = require('./routers/orders');
 const analyticsRouter = require('./routers/analytics');
+const productTypeRouter = require('./routers/product-types');
 
 
 
@@ -48,6 +49,7 @@ app.use(`${api}/categories`, categoryRouter);
 app.use(`${api}/users`, userRouter);
 app.use(`${api}/orders`, orderRouter);
 app.use('/api/v1/analytics', analyticsRouter);
+app.use(`${api}/product-types`, productTypeRouter);
 
 
 

@@ -31,6 +31,11 @@ const items = [
     icon: Inbox,
   },
   {
+    title: "Product Types",
+    url: "/admin/product-types",
+    icon: Inbox,
+  },
+  {
     title: "Users",
     url: "/admin/users",
     icon: User,
