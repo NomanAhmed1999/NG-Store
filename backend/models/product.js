@@ -1,4 +1,3 @@
-
 const mongoose = require('mongoose');
 
 const productsSchema = mongoose.Schema({
@@ -55,7 +54,19 @@ const productsSchema = mongoose.Schema({
     dateCreated: {
         type: Date,
         default: Date.now
-    }
+    },
+    productType: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'ProductType'
+    },
+    colors: [{
+        type: String,
+        default: []
+    }],
+    sizes: [{
+        type: String,
+        default: []
+    }]
 });
 
 productsSchema.virtual('id').get(function () {

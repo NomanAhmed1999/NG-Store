@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PhotoSection from "./PhotoSection";
 import { Product } from "@/types/product.types";
 import { integralCF } from "@/styles/fonts";
@@ -8,7 +8,20 @@ import ColorSelection from "./ColorSelection";
 import SizeSelection from "./SizeSelection";
 import AddToCardSection from "./AddToCardSection";
 
-const Header = ({ data }: { data: Product }) => {
+interface HeaderProps {
+  data: {
+    name: string;
+    rating: number;
+    price: number;
+    colors: string[];
+    sizes: string[];
+  };
+}
+
+const Header: React.FC<HeaderProps> = ({ data }: any) => {
+  const [selectedColor, setSelectedColor] = useState<string>(data.colors[0] || '');
+  const [selectedSize, setSelectedSize] = useState<string>(data.sizes[0] || '');
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -84,11 +97,25 @@ const Header = ({ data }: { data: Product }) => {
             a soft and breathable fabric, it offers superior comfort and style.
           </p>
           <hr className="h-[1px] border-t-black/10 mb-5" />
-          <ColorSelection />
+          <ColorSelection 
+            colors={data.colors} 
+            selectedColor={selectedColor}
+            onColorSelect={setSelectedColor}
+          />
           <hr className="h-[1px] border-t-black/10 my-5" />
-          <SizeSelection />
+          <SizeSelection 
+            sizes={data.sizes}
+            selectedSize={selectedSize}
+            onSizeSelect={setSelectedSize}
+          />
           <hr className="hidden md:block h-[1px] border-t-black/10 my-5" />
-          <AddToCardSection product={data} />
+          <AddToCardSection 
+            product={{
+              ...data,
+              selectedColor,
+              selectedSize
+            }} 
+          />
         </div>
       </div>
     </>

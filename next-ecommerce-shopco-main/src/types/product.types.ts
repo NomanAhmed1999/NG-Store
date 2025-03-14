@@ -3,7 +3,7 @@ export type Discount = {
   percentage: number;
 };
 
-export type Product = {
+export interface Product {
   id: number;
   name: string;
   image: string;
@@ -13,4 +13,6 @@ export type Product = {
   rating: number;
   category: any;
   description: string;
-};
+  colors: string[];
+  sizes: string[];
+}

@@ -1,32 +1,36 @@
 "use client";
 
-import { setSizeSelection } from "@/lib/features/products/productsSlice";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks/redux";
-import { RootState } from "@/lib/store";
-import { cn } from "@/lib/utils";
 import React from "react";
+import { cn } from "@/lib/utils";
 
-const SizeSelection = () => {
-  const { sizeSelection } = useAppSelector(
-    (state: RootState) => state.products
-  );
-  const dispatch = useAppDispatch();
+interface SizeSelectionProps {
+  sizes: string[];
+  selectedSize: string;
+  onSizeSelect: (size: string) => void;
+}
 
+const SizeSelection: React.FC<SizeSelectionProps> = ({ 
+  sizes, 
+  selectedSize, 
+  onSizeSelect 
+}) => {
   return (
     <div className="flex flex-col">
       <span className="text-sm sm:text-base text-black/60 mb-4">
-        Choose Size
+        Select Size
       </span>
-      <div className="flex items-center flex-wrap lg:space-x-3">
-        {["Small", "Medium", "Large", "X-Large"].map((size, index) => (
+      <div className="flex items-center flex-wrap gap-2.5">
+        {sizes.map((size) => (
           <button
-            key={index}
+            key={size}
             type="button"
-            className={cn([
-              "bg-[#F0F0F0] flex items-center justify-center px-5 lg:px-6 py-2.5 lg:py-3 text-sm lg:text-base rounded-full m-1 lg:m-0 max-h-[46px]",
-              sizeSelection === size && "bg-black font-medium text-white",
-            ])}
-            onClick={() => dispatch(setSizeSelection(size))}
+            onClick={() => onSizeSelect(size)}
+            className={cn(
+              "p-2 rounded-lg border border-black/10 text-sm font-medium",
+              selectedSize === size
+                ? "bg-black text-white"
+                : "bg-white text-black hover:border-black"
+            )}
           >
             {size}
           </button>

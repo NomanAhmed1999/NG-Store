@@ -91,6 +91,7 @@ router.get(`/`, async (req, res) => {
 
         const productList = await Product.find(filter)
             .populate('category')
+            .populate('productType')
             .sort(sort)
             .skip(skip)
             .limit(limit);
@@ -108,7 +109,13 @@ router.get(`/`, async (req, res) => {
 });
 
 router.get(`/:id`, async (req, res) => {
-    const productList = await Product.findById(req.params.id).populate('category');
+    const productList = await Product.findById(req.params.id).populate('category').populate('productType');
+    if (productList && productList.colors.length) {
+        productList.colors = typeof productList.colors[0] === "string" ? productList.colors[0].split(",") : productList.colors;
+    }
+    if (productList && productList.sizes.length) {
+        productList.sizes = typeof productList.sizes[0] === "string" ? productList.sizes[0].split(",") : productList.colors;
+    }
 
     if (!productList) {
         res.status(500).json({ success: false });
@@ -135,7 +142,10 @@ router.post(`/`, uploadOptions.single('image'), async (req, res) => {
         countInStock: req.body.countInStock,
         rating: req.body.rating,
         numReviews: req.body.numReviews,
-        isFeatured: req.body.isFeatured
+        isFeatured: req.body.isFeatured,
+        productType: req.body.productType,
+        colors: req.body.colors,
+        sizes: req.body.sizes,
     })
     product = await product.save();
     if (!product) {
@@ -179,7 +189,10 @@ router.put('/:id', uploadOptions.single('image'), async (req, res) => {
             countInStock: req.body.countInStock,
             rating: req.body.rating,
             numReviews: req.body.numReviews,
-            isFeatured: req.body.isFeatured
+            isFeatured: req.body.isFeatured,
+            productType: req.body.productType,
+            colors: req.body.colors,
+            sizes: req.body.sizes,
         },
         { new: true }
     );

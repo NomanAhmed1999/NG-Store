@@ -5,7 +5,7 @@ import { AppSidebar } from '@/components/common/app-sidebar';
 import TopNavbar from '@/components/layout/Navbar/TopNavbar';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, X } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -28,6 +28,7 @@ import Image from 'next/image';
 import Footer from '@/components/layout/Footer';
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 import 'react-quill/dist/quill.snow.css';
+import { BASE_URL } from '@/lib/constant';
 
 interface Product {
   _id: string;
@@ -50,6 +51,13 @@ interface Category {
   name: string;
 }
 
+interface ProductType {
+  _id: string;
+  name: string;
+  description: string;
+  isActive: boolean;
+}
+
 interface FormData {
   name: string;
   description: string;
@@ -60,14 +68,20 @@ interface FormData {
   category: string;
   countInStock: number;
   isFeatured: boolean;
+  productType: string;
+  colors: string[];
+  sizes: string[];
 }
 
 function ProductPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [productTypes, setProductTypes] = useState<ProductType[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [newColor, setNewColor] = useState('');
+  const [newSize, setNewSize] = useState('');
   const [formData, setFormData] = useState<FormData>({
     name: '',
     description: '',
@@ -76,7 +90,10 @@ function ProductPage() {
     price: 0,
     category: '',
     countInStock: 0,
-    isFeatured: false
+    isFeatured: false,
+    productType: '',
+    colors: [],
+    sizes: []
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -98,9 +115,19 @@ function ProductPage() {
     }
   };
 
+  const fetchProductTypes = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/product-types`);
+      setProductTypes(response.data.productTypes.filter((pt: ProductType) => pt.isActive));
+    } catch (error) {
+      toast.error('Failed to fetch product types');
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
     fetchCategories();
+    fetchProductTypes();
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -147,7 +174,10 @@ function ProductPage() {
         price: 0,
         category: '',
         countInStock: 0,
-        isFeatured: false
+        isFeatured: false,
+        productType: '',
+        colors: [],
+        sizes: []
       });
       if (fileInputRef.current) fileInputRef.current.value = '';
       fetchProducts();
@@ -191,7 +221,10 @@ function ProductPage() {
         price: 0,
         category: '',
         countInStock: 0,
-        isFeatured: false
+        isFeatured: false,
+        productType: '',
+        colors: [],
+        sizes: []
       });
       if (fileInputRef.current) fileInputRef.current.value = '';
       fetchProducts();
@@ -224,7 +257,10 @@ function ProductPage() {
       price: product.price,
       category: product.category?._id || '',
       countInStock: product.countInStock,
-      isFeatured: product.isFeatured
+      isFeatured: product.isFeatured,
+      productType: '',
+      colors: [],
+      sizes: []
     });
     setIsAddModalOpen(true);
   };
@@ -238,8 +274,45 @@ function ProductPage() {
       price: 0,
       category: '',
       countInStock: 0,
-      isFeatured: false
+      isFeatured: false,
+      productType: '',
+      colors: [],
+      sizes: []
     });
+  };
+
+  const handleAddColor = () => {
+    if (newColor && !formData.colors.includes(newColor)) {
+      setFormData(prev => ({
+        ...prev,
+        colors: [...prev.colors, newColor]
+      }));
+      setNewColor('');
+    }
+  };
+
+  const handleRemoveColor = (colorToRemove: string) => {
+    setFormData(prev => ({
+      ...prev,
+      colors: prev.colors.filter(color => color !== colorToRemove)
+    }));
+  };
+
+  const handleAddSize = () => {
+    if (newSize && !formData.sizes.includes(newSize)) {
+      setFormData(prev => ({
+        ...prev,
+        sizes: [...prev.sizes, newSize.toUpperCase()]
+      }));
+      setNewSize('');
+    }
+  };
+
+  const handleRemoveSize = (sizeToRemove: string) => {
+    setFormData(prev => ({
+      ...prev,
+      sizes: prev.sizes.filter(size => size !== sizeToRemove)
+    }));
   };
 
   return (
@@ -412,6 +485,88 @@ function ProductPage() {
                         ref={fileInputRef}
                         required={!selectedProduct}
                       />
+                    </div>
+                    <div>
+                      <Label htmlFor="productType">Product Type</Label>
+                      <Select
+                        value={formData.productType}
+                        onValueChange={(value) => setFormData(prev => ({ ...prev, productType: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Product Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {productTypes.map((type) => (
+                            <SelectItem key={type._id} value={type._id}>
+                              {type.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Colors</Label>
+                      <div className="flex gap-2 mb-2">
+                        <Input
+                          value={newColor}
+                          onChange={(e) => setNewColor(e.target.value)}
+                          placeholder="Add a color"
+                        />
+                        <Button type="button" onClick={handleAddColor}>
+                          Add
+                        </Button>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {formData.colors.map((color) => (
+                          <div 
+                            key={color}
+                            className="flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1"
+                          >
+                            <div 
+                              className="w-4 h-4 rounded-full" 
+                              style={{ backgroundColor: color }}
+                            />
+                            {color}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveColor(color)}
+                              className="ml-1 text-gray-500 hover:text-red-500"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Sizes</Label>
+                      <div className="flex gap-2 mb-2">
+                        <Input
+                          value={newSize}
+                          onChange={(e) => setNewSize(e.target.value)}
+                          placeholder="Add a size (e.g., S, M, L, XL)"
+                        />
+                        <Button type="button" onClick={handleAddSize}>
+                          Add
+                        </Button>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {formData.sizes.map((size) => (
+                          <div 
+                            key={size}
+                            className="flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1"
+                          >
+                            {size}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveSize(size)}
+                              className="ml-1 text-gray-500 hover:text-red-500"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                   <div>

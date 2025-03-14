@@ -18,8 +18,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useCartStore } from "@/lib/store/useCartStore";
 
 const ResTopNavbar = ({ data }: { data: NavMenu }) => {
+  const { totalItems } = useCartStore();
+
   return (
     <Sheet>
       <SheetTrigger asChild className="cursor-pointer">
@@ -78,6 +81,21 @@ const ResTopNavbar = ({ data }: { data: NavMenu }) => {
               )}
             </React.Fragment>
           ))}
+        </div>
+        <div className="relative">
+          <Image
+            priority
+            src="/icons/cart.svg"
+            height={100}
+            width={100}
+            alt="cart"
+            className="max-w-[22px] max-h-[22px]"
+          />
+          {totalItems > 0 && (
+            <span className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              {totalItems}
+            </span>
+          )}
         </div>
       </SheetContent>
     </Sheet>

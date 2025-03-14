@@ -1,4 +1,4 @@
-import { Calendar, Home, Inbox, ListOrdered, Search, Settings, User } from "lucide-react"
+import { Calendar, Home, Inbox, ListOrdered, Search, Settings, User, Truck, Tag } from "lucide-react"
 
 import {
   Sidebar,
@@ -34,6 +34,16 @@ const items = [
     title: "Product Types",
     url: "/admin/product-types",
     icon: Inbox,
+  },
+  {
+    title: "Delivery Charges",
+    url: "/admin/delivery-charges",
+    icon: Truck,
+  },
+  {
+    title: "Coupons",
+    url: "/admin/coupons",
+    icon: Tag,
   },
   {
     title: "Users",

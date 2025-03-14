@@ -11,6 +11,8 @@ import { toast } from "react-hot-toast";
 import ProductLoader from "@/components/product-page/ProductLoader";
 import TopNavbar from "@/components/layout/Navbar/TopNavbar";
 import Footer from "@/components/layout/Footer";
+import { useCartStore } from "@/lib/store/useCartStore";
+import { Button } from "@/components/ui/button";
 
 export default function ProductPage({
   params,
@@ -20,6 +22,10 @@ export default function ProductPage({
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedColor, setSelectedColor] = useState<string | undefined>();
+  const [selectedSize, setSelectedSize] = useState<string | undefined>();
+  const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useCartStore();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -47,6 +53,23 @@ export default function ProductPage({
 
     fetchProduct();
   }, [params.slug]);
+
+  const handleAddToCart = () => {
+    if (product) {
+      addToCart({
+        id: product.id.toString(), // Convert number to string
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        description: product.description,
+        selectedColor,
+        selectedSize,
+      }, quantity);
+
+      toast.success("Product added to cart!");
+      setQuantity(1); // Reset quantity after adding
+    }
+  };
 
   if (isLoading) {
     return <ProductLoader />;
@@ -76,6 +99,57 @@ export default function ProductPage({
           />
         </div>
       )}
+
+      {/* Color Selection */}
+      {product.colors && product.colors.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-sm font-medium mb-2">Color</h3>
+          <div className="flex gap-2">
+            {product.colors.map((color) => (
+              <button
+                key={color}
+                onClick={() => setSelectedColor(color)}
+                className={`w-8 h-8 rounded-full border-2 ${
+                  selectedColor === color ? 'border-black' : 'border-gray-200'
+                }`}
+                style={{ backgroundColor: color }}
+                title={color}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Size Selection */}
+      {product.sizes && product.sizes.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-sm font-medium mb-2">Size</h3>
+          <div className="flex gap-2">
+            {product.sizes.map((size) => (
+              <button
+                key={size}
+                onClick={() => setSelectedSize(size)}
+                className={`px-4 py-2 border rounded ${
+                  selectedSize === size 
+                    ? 'border-black bg-black text-white' 
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                {size}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Add to Cart Button */}
+      <Button 
+        onClick={handleAddToCart}
+        className="w-full"
+      >
+        Add to Cart
+      </Button>
+
       <Footer/>
     </main>
   );
